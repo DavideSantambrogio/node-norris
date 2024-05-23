@@ -10,6 +10,7 @@ const host = process.env.HOST || "localhost";
 
 // URL dell'API per ottenere una battuta random
 const chuckNorrisApiUrl = 'https://api.chucknorris.io/jokes/random';
+const norrisDbFilePath = 'norrisDb.json'; // Percorso del file norrisDb.json
 
 // Funzione per ottenere una battuta random da Chuck Norris API
 async function getChuckNorrisJoke() {
@@ -17,14 +18,13 @@ async function getChuckNorrisJoke() {
         const response = await fetch(chuckNorrisApiUrl); // Utilizza fetch per effettuare la richiesta HTTP
         const data = await response.json(); // Estrai il corpo della risposta come JSON
 
-        // Salvataggio della battuta nel file norrisDb.json
-        const joke = data.value;
-        const jokeData = { joke };
+        // Aggiungi la nuova battuta al file norrisDb.json
+        const newJoke = data.value;
+        const jokeData = { joke: newJoke };
         const jsonData = JSON.stringify(jokeData);
+        fs.appendFileSync(norrisDbFilePath, jsonData + '\n');
 
-        fs.writeFileSync('norrisDb.json', jsonData);
-
-        return joke; // Restituisce solo il valore della battuta
+        return newJoke; // Restituisce solo il valore della nuova battuta
     } catch (error) {
         console.error('Errore durante il recupero della battuta da Chuck Norris API:', error);
         return null;

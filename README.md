@@ -4,7 +4,7 @@
 
 - [x] Il file json quindi dovrà contenere la lista di tutte le battute scaricate nell’arco del tempo.
 
-- [] Per evitare che nodemon riavvii il server ogni volta che questo file viene modificato, aggiungete la seguente configurazione nel file package.json:
+- [x] Per evitare che nodemon riavvii il server ogni volta che questo file viene modificato, aggiungete la seguente configurazione nel file package.json:
 "nodemonConfig": {
 	"ignore": ["norrisDb.json"]
 }
