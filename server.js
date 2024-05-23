@@ -1,7 +1,8 @@
 // Importazione dei moduli
 const http = require("http");
 require('dotenv').config(); // Carica le variabili d'ambiente da .env
-const fs = require('fs')
+const fs = require('fs');
+
 
 // Configurazione delle variabili di ambiente
 const port = process.env.PORT || 8080;
@@ -32,6 +33,13 @@ async function getChuckNorrisJoke() {
 
 // Creazione del server HTTP
 const server = http.createServer(async function (req, res) {
+    if (req.url === '/favicon.ico') {
+        // Se la richiesta è per la favicon, rispondi con 404 Not Found
+        res.writeHead(404);
+        res.end();
+        return;
+    }
+
     res.writeHead(200, { "Content-Type": "text/html charset=utf-8" });
 
     // Ottieni una battuta di Chuck Norris
