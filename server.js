@@ -1,4 +1,3 @@
-// Importazione dei moduli
 const http = require("http");
 require('dotenv').config(); // Carica le variabili d'ambiente da .env
 const fs = require('fs');
@@ -15,14 +14,30 @@ const norrisDbFilePath = 'norrisDb.json'; // Percorso del file norrisDb.json
 // Funzione per ottenere una battuta random da Chuck Norris API
 async function getChuckNorrisJoke() {
     try {
-        const response = await fetch(chuckNorrisApiUrl); // Utilizza fetch per effettuare la richiesta HTTP
-        const data = await response.json(); // Estrai il corpo della risposta come JSON
+        let newJoke;
+        let existingJokes = [];
+
+        // Leggi le battute già presenti nel file norrisDb.json
+        try {
+            const existingData = fs.readFileSync(norrisDbFilePath);
+            existingJokes = JSON.parse(existingData).jokes || [];
+        } catch (error) {
+            // Se il file non esiste o non può essere letto, non fare nulla
+        }
+
+        // Ottieni una nuova battuta finché non è diversa da quelle già presenti
+        do {
+            const response = await fetch(chuckNorrisApiUrl); // Utilizza fetch per effettuare la richiesta HTTP
+            const data = await response.json(); // Estrai il corpo della risposta come JSON
+
+            newJoke = data.value;
+
+        } while (existingJokes.includes(newJoke)); // Continua finché la nuova battuta è già presente
 
         // Aggiungi la nuova battuta al file norrisDb.json
-        const newJoke = data.value;
-        const jokeData = { joke: newJoke };
-        const jsonData = JSON.stringify(jokeData);
-        fs.appendFileSync(norrisDbFilePath, jsonData + '\n');
+        existingJokes.push(newJoke);
+        const jsonData = JSON.stringify({ jokes: existingJokes });
+        fs.writeFileSync(norrisDbFilePath, jsonData);
 
         return newJoke; // Restituisce solo il valore della nuova battuta
     } catch (error) {
