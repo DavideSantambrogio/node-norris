@@ -1,4 +1,6 @@
-- [] Sfruttando l’api https://api.chucknorris.io/jokes/random creare un applicazione che scarica una battuta random, la aggiunge ad un file json norrisDb.json e la mostra all’utente.
+- [x] Sfruttando l’api https://api.chucknorris.io/jokes/random creare un applicazione che scarica una battuta random e la mostra all’utente, 
+
+- [] la aggiunge ad un file json norrisDb.json.
 
 - [] Il file json quindi dovrà contenere la lista di tutte le battute scaricate nell’arco del tempo.
 
