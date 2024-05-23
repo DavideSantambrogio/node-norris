@@ -1,6 +1,7 @@
 // Importazione dei moduli
 const http = require("http");
 require('dotenv').config(); // Carica le variabili d'ambiente da .env
+const fs = require('fs')
 
 // Configurazione delle variabili di ambiente
 const port = process.env.PORT || 8080;
@@ -14,7 +15,15 @@ async function getChuckNorrisJoke() {
     try {
         const response = await fetch(chuckNorrisApiUrl); // Utilizza fetch per effettuare la richiesta HTTP
         const data = await response.json(); // Estrai il corpo della risposta come JSON
-        return data.value; // Restituisce solo il valore della battuta
+
+        // Salvataggio della battuta nel file norrisDb.json
+        const joke = data.value;
+        const jokeData = { joke };
+        const jsonData = JSON.stringify(jokeData);
+
+        fs.writeFileSync('norrisDb.json', jsonData);
+
+        return joke; // Restituisce solo il valore della battuta
     } catch (error) {
         console.error('Errore durante il recupero della battuta da Chuck Norris API:', error);
         return null;
@@ -23,7 +32,7 @@ async function getChuckNorrisJoke() {
 
 // Creazione del server HTTP
 const server = http.createServer(async function (req, res) {
-    res.writeHead(200, { "Content-Type": "text/html" });
+    res.writeHead(200, { "Content-Type": "text/html charset=utf-8" });
 
     // Ottieni una battuta di Chuck Norris
     const joke = await getChuckNorrisJoke();
