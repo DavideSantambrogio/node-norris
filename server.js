@@ -1,7 +1,7 @@
+// Importazione dei moduli
 const http = require("http");
 require('dotenv').config(); // Carica le variabili d'ambiente da .env
 const fs = require('fs');
-
 
 // Configurazione delle variabili di ambiente
 const port = process.env.PORT || 8080;
@@ -12,31 +12,39 @@ const chuckNorrisApiUrl = 'https://api.chucknorris.io/jokes/random';
 const norrisDbFilePath = 'norrisDb.json'; // Percorso del file norrisDb.json
 
 // Funzione per ottenere una battuta random da Chuck Norris API
+async function fetchNewJoke() {
+    const response = await fetch(chuckNorrisApiUrl);
+    const data = await response.json();
+    return data.value;
+}
+
+// Funzione per ottenere una battuta unica
+async function getUniqueChuckNorrisJoke(existingJokes) {
+    let newJoke;
+    do {
+        newJoke = await fetchNewJoke();
+    } while (existingJokes.includes(newJoke));
+    return newJoke;
+}
+
+// Funzione principale per gestire le battute
 async function getChuckNorrisJoke() {
     try {
-        let newJoke;
-        let existingJokes = [];
-
         // Leggi le battute già presenti nel file norrisDb.json
+        let existingJokes = [];
         try {
             const existingData = fs.readFileSync(norrisDbFilePath);
             existingJokes = JSON.parse(existingData).jokes || [];
         } catch (error) {
-            // Se il file non esiste o non può essere letto, non fare nulla
+            // Se il file non esiste o non può essere letto, inizializza con una lista vuota
         }
 
-        // Ottieni una nuova battuta finché non è diversa da quelle già presenti
-        do {
-            const response = await fetch(chuckNorrisApiUrl); // Utilizza fetch per effettuare la richiesta HTTP
-            const data = await response.json(); // Estrai il corpo della risposta come JSON
-
-            newJoke = data.value;
-
-        } while (existingJokes.includes(newJoke)); // Continua finché la nuova battuta è già presente
+        // Ottieni una battuta unica
+        const newJoke = await getUniqueChuckNorrisJoke(existingJokes);
 
         // Aggiungi la nuova battuta al file norrisDb.json
         existingJokes.push(newJoke);
-        const jsonData = JSON.stringify({ jokes: existingJokes });
+        const jsonData = JSON.stringify({ jokes: existingJokes }, null, 2);
         fs.writeFileSync(norrisDbFilePath, jsonData);
 
         return newJoke; // Restituisce solo il valore della nuova battuta
@@ -55,7 +63,7 @@ const server = http.createServer(async function (req, res) {
         return;
     }
 
-    res.writeHead(200, { "Content-Type": "text/html charset=utf-8" });
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
 
     // Ottieni una battuta di Chuck Norris
     const joke = await getChuckNorrisJoke();
